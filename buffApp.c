@@ -6,10 +6,12 @@
  */
 
 
-
-#include <stdint.h>
-#include <stdio.h>
-#include <stdbool.h>
+#include<pthread.h>
+#include<stdint.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include<stdlib.h>
 
 #include "projectDefines.h"
 #include "shiftParser.h"
@@ -20,9 +22,39 @@ static uint32_t  rxIndex;
 static bool      processingSector;
 static char      buff[TOTAL_BYTES_IN_SECTOR];
 
+//use this guy to pick a name for our log
+uint32_t logId;
+pthread_mutex_t idLock;
+
+static FILE * createLog(uint32_t logId)
+{
+    char id[20];
+    char name[30];
+    strcpy(name, "log");
+    //id will now hold a string equal to t
+    sprintf(id,"%d", logId);
+    //name is log, add whatever logId is to it, now we get something like log34, etc
+    strcat(name,id);
+    
+    FILE *logfile = fopen(name,"wb");
+}
+
+static void* processInfo(void *arg)
+{
+    pthread_mutex_lock(&idLock);
+    uint32_t t = logId++;
+    pthread_mutex_unlock(&idLock);
+    
+    FILE *log = createLog(t);
+   	fwrite(arg, TOTAL_BYTES_IN_SECTOR, 1, log);
+    fclose(log);	  
+    //system("python pu");
+    free(arg);
+    return NULL;
+}
 void initRxDigestor()
 {
-    rxIndex     = 0;
+    rxIndex = 0;
 }
 
 
@@ -75,6 +107,20 @@ void processIncomingData(uint8_t rxByte)
                 putBuff(rxIndex,rxByte);
                 processingSector =  SEARCHING_FOR_SECTOR;
                 printf("Found end sector! \n");
+                
+                
+                int z = 0;
+                
+                while(z!= TOTAL_BYTES_IN_SECTOR)
+                {
+                   printf("%d : %c \n", z, buff[z]);
+                   z++;
+                }
+
+                pthread_t tid;
+                char * fullSector = malloc(TOTAL_BYTES_IN_SECTOR);
+                memcpy(fullSector, buff,TOTAL_BYTES_IN_SECTOR);
+                pthread_create(&tid, NULL, &processInfo, fullSector);
             }
         }
         else

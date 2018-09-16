@@ -12,43 +12,6 @@
 #include "buffApp.h"
 #include "shiftParser.h"
 
- 
-//use this guy to pick a name for our log
-uint32_t logId;
-pthread_mutex_t idLock;
-
-static FILE * createLog(uint32_t logId)
-{
-    char id[20];
-    char name[30];
-    strcpy(name, "log");
-    //id will now hold a string equal to t
-    sprintf(id,"%d", logId);
-    //name is log, add whatever logId is to it, now we get something like log34, etc
-    strcat(name,id);
-    
-    FILE *logfile = fopen(name,"wb");
-}
-
-static void* processInfo(void *arg)
-{
-    pthread_mutex_lock(&idLock);
-    uint32_t t = logId++;
-    pthread_mutex_unlock(&idLock);
-    
-    FILE *log = createLog(t);
-
-   	fwrite(arg, TOTAL_BYTES_IN_SECTOR, 1, log);
-
-    fclose(log);
-    		  
-    //system("python pu");
-    
-    free(arg);
-
-    return NULL;
-}
-
 
 int main(int argc , char *argv[])
 {

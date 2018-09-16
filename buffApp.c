@@ -39,6 +39,16 @@ static FILE * createLog(uint32_t logId)
     FILE *logfile = fopen(name,"wb");
 }
 
+//creates the system command to kick off python
+// ie.. "python sectorParser.py log34" etc
+static void sysCommand(char * command, uint32_t logId )
+{
+    char id[20];   
+    strcpy(command, "python3 sectorParser.py log");
+    sprintf(id,"%d", logId);
+    strcat(command,id);
+}
+
 static void* processInfo(void *arg)
 {
     pthread_mutex_lock(&idLock);
@@ -46,12 +56,22 @@ static void* processInfo(void *arg)
     pthread_mutex_unlock(&idLock);
     
     FILE *log = createLog(t);
+
    	fwrite(arg, TOTAL_BYTES_IN_SECTOR, 1, log);
-    fclose(log);	  
-    //system("python pu");
+
+    fclose(log);
+    		
     free(arg);
+
+    		
+    char command[100];
+    sysCommand(command,t);
+    printf("%s", command);
+    system(command);
+    
     return NULL;
 }
+
 void initRxDigestor()
 {
     rxIndex = 0;
@@ -109,13 +129,12 @@ void processIncomingData(uint8_t rxByte)
                 printf("Found end sector! \n");
                 
                 
-                int z = 0;
-                
-                while(z!= TOTAL_BYTES_IN_SECTOR)
-                {
-                   printf("%d : %c \n", z, buff[z]);
-                   z++;
-                }
+               
+                //while(z!= TOTAL_BYTES_IN_SECTOR)
+                //{
+                //   printf("%d : %c \n", z, buff[z]);
+                //   z++;
+                // }
 
                 pthread_t tid;
                 char * fullSector = malloc(TOTAL_BYTES_IN_SECTOR);

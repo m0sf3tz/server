@@ -44,7 +44,7 @@ static FILE * createLog(uint32_t logId)
 static void sysCommand(char * command, uint32_t logId )
 {
     char id[20];   
-    strcpy(command, "python3 sectorParser.py log");
+    strcpy(command, "python3 python/sectorParser.py log");
     sprintf(id,"%d", logId);
     strcat(command,id);
 }

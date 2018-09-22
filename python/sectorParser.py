@@ -28,4 +28,4 @@ if firstScan(rawBinary):
 
 
 
-getDataPlot(rawBinary)
+#getDataPlot(rawBinary)

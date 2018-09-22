@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.fftpack import fft
-import matplotlib.pyplot as plt
 
 
 #turns a byte array into a DWORD array of exactly half size
@@ -64,3 +63,4 @@ def plot(data):
     plt.plot(xf, 10 * 2.0 / N * np.abs(yf[0:N // 2]))
     plt.grid()
     plt.show()
+
